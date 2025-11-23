@@ -1,17 +1,17 @@
 """
-UK HPI – Streamlit Explorer
+UK HPI – Streamlit Explorer (no Plotly)
 
 Usage:
 - Put this file (app.py) in the same folder as: UK-HPI-full-file-2025-09.csv
-- Install deps: pip install streamlit pandas plotly
+- Install deps: pip install streamlit pandas
 - Run: streamlit run app.py
 """
 
-import pandas as pd
-import numpy as np
-import streamlit as st
-import plotly.express as px
 from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import streamlit as st
 
 DATA_FILE = "UK-HPI-full-file-2025-09.csv"
 
@@ -27,7 +27,6 @@ def load_data(path: str) -> pd.DataFrame:
     # Standard UK HPI columns:
     # Date, RegionName, RegionCode, AveragePrice, Index, IndexSA,
     # SalesVolume, PropertyType, NewBuild, Tenure, RecordStatus
-    # Be defensive in case of small differences.
 
     # Date → datetime
     if "Date" in df.columns:
@@ -224,16 +223,8 @@ def main():
                 .mean()
             )
             if not grp.empty:
-                fig = px.bar(
-                    grp,
-                    x="RegionName",
-                    y="AveragePrice",
-                    labels={
-                        "RegionName": "Region",
-                        "AveragePrice": "Average price (£)",
-                    },
-                )
-                st.plotly_chart(fig, use_container_width=True)
+                chart_data = grp.set_index("RegionName")["AveragePrice"]
+                st.bar_chart(chart_data)
             else:
                 st.info("No data for latest month after filtering.")
         else:
@@ -249,42 +240,50 @@ def main():
             st.info("Date and AveragePrice columns are required for time series.")
         else:
             if "RegionName" in df_filt.columns:
-                fig = px.line(
-                    df_filt,
-                    x="Date",
-                    y="AveragePrice",
-                    color="RegionName",
-                    labels={"AveragePrice": "Average price (£)", "RegionName": "Region"},
+                # Pivot to have regions as columns
+                ts = (
+                    df_filt.dropna(subset=["RegionName", "AveragePrice"])
+                    .pivot_table(
+                        index="Date",
+                        columns="RegionName",
+                        values="AveragePrice",
+                        aggfunc="mean",
+                    )
+                    .sort_index()
                 )
+                st.line_chart(ts)
             else:
-                fig = px.line(
-                    df_filt,
-                    x="Date",
-                    y="AveragePrice",
-                    labels={"AveragePrice": "Average price (£)"},
+                ts = (
+                    df_filt[["Date", "AveragePrice"]]
+                    .dropna()
+                    .set_index("Date")
+                    .sort_index()
                 )
-
-            st.plotly_chart(fig, use_container_width=True)
+                st.line_chart(ts)
 
             # Optional: Index time series
             if "Index" in df_filt.columns:
                 st.markdown("### House price index over time")
                 if "RegionName" in df_filt.columns:
-                    fig2 = px.line(
-                        df_filt,
-                        x="Date",
-                        y="Index",
-                        color="RegionName",
-                        labels={"Index": "Index", "RegionName": "Region"},
+                    ts_idx = (
+                        df_filt.dropna(subset=["RegionName", "Index"])
+                        .pivot_table(
+                            index="Date",
+                            columns="RegionName",
+                            values="Index",
+                            aggfunc="mean",
+                        )
+                        .sort_index()
                     )
+                    st.line_chart(ts_idx)
                 else:
-                    fig2 = px.line(
-                        df_filt,
-                        x="Date",
-                        y="Index",
-                        labels={"Index": "Index"},
+                    ts_idx = (
+                        df_filt[["Date", "Index"]]
+                        .dropna()
+                        .set_index("Date")
+                        .sort_index()
                     )
-                st.plotly_chart(fig2, use_container_width=True)
+                    st.line_chart(ts_idx)
 
     # -----------------------
     # Regional comparison tab
@@ -295,7 +294,6 @@ def main():
         if "RegionName" not in df_filt.columns or "AveragePrice" not in df_filt.columns:
             st.info("RegionName and AveragePrice are required for regional comparison.")
         else:
-            # Average over selected period
             st.markdown("### Average price over selected period (by region)")
             grp = (
                 df_filt.dropna(subset=["RegionName", "AveragePrice"])
@@ -303,18 +301,9 @@ def main():
                 .mean()
             )
             if not grp.empty:
-                fig = px.bar(
-                    grp,
-                    x="RegionName",
-                    y="AveragePrice",
-                    labels={
-                        "RegionName": "Region",
-                        "AveragePrice": "Mean price over selected period (£)",
-                    },
-                )
-                st.plotly_chart(fig, use_container_width=True)
+                chart_data = grp.set_index("RegionName")["AveragePrice"]
+                st.bar_chart(chart_data)
 
-            # If SalesVolume exists, show average sales volume per region
             if "SalesVolume" in df_filt.columns:
                 st.markdown("### Average sales volume over selected period (by region)")
                 grp_vol = (
@@ -323,16 +312,8 @@ def main():
                     .mean()
                 )
                 if not grp_vol.empty:
-                    fig2 = px.bar(
-                        grp_vol,
-                        x="RegionName",
-                        y="SalesVolume",
-                        labels={
-                            "RegionName": "Region",
-                            "SalesVolume": "Mean monthly sales volume",
-                        },
-                    )
-                    st.plotly_chart(fig2, use_container_width=True)
+                    vol_data = grp_vol.set_index("RegionName")["SalesVolume"]
+                    st.bar_chart(vol_data)
 
     # -----------------------
     # Property type tab
@@ -351,30 +332,22 @@ def main():
                 .mean()
             )
             if not grp.empty:
-                fig = px.bar(
-                    grp,
-                    x="PropertyType",
-                    y="AveragePrice",
-                    labels={
-                        "PropertyType": "Property type",
-                        "AveragePrice": "Mean price over selected period (£)",
-                    },
-                )
-                st.plotly_chart(fig, use_container_width=True)
+                chart_data = grp.set_index("PropertyType")["AveragePrice"]
+                st.bar_chart(chart_data)
 
             if "Date" in df_filt.columns:
                 st.markdown("### Time series by property type")
-                fig2 = px.line(
-                    df_filt,
-                    x="Date",
-                    y="AveragePrice",
-                    color="PropertyType",
-                    labels={
-                        "AveragePrice": "Average price (£)",
-                        "PropertyType": "Property type",
-                    },
+                ts_prop = (
+                    df_filt.dropna(subset=["PropertyType", "AveragePrice"])
+                    .pivot_table(
+                        index="Date",
+                        columns="PropertyType",
+                        values="AveragePrice",
+                        aggfunc="mean",
+                    )
+                    .sort_index()
                 )
-                st.plotly_chart(fig2, use_container_width=True)
+                st.line_chart(ts_prop)
 
 
 if __name__ == "__main__":
