@@ -33,7 +33,7 @@ from visualisations import (
 
 def load_data_from_paths(data_dir: str) -> Optional[pd.DataFrame]:
     """
-    Load from /data using the SPC filenames you listed.
+    Load from /data using the SPC filenames plus UK-HPI-cleaned.csv.
     """
     try:
         fsm_path = os.path.join(data_dir, "spc_pupils_fsm.csv")
@@ -45,6 +45,10 @@ def load_data_from_paths(data_dir: str) -> Optional[pd.DataFrame]:
         uifsm_path = os.path.join(data_dir, "spc_uifsm.csv")
         cbm_path = os.path.join(data_dir, "spc_cbm.csv")
 
+        hpi_path = os.path.join(data_dir, "UK-HPI-cleaned.csv")
+        if not os.path.exists(hpi_path):
+            hpi_path = None  # run fine without it
+
         df = build_analysis_dataset(
             fsm_path=fsm_path,
             fsm6_path=fsm6_path,
@@ -54,7 +58,8 @@ def load_data_from_paths(data_dir: str) -> Optional[pd.DataFrame]:
             school_char_path=school_char_path,
             uifsm_path=uifsm_path,
             cbm_path=cbm_path,
-            performance_path=None,  # add KS4/KS5 later
+            performance_path=None,     # hook in KS4/KS5 later
+            hpi_path=hpi_path,
         )
         return df
     except FileNotFoundError:
@@ -62,6 +67,7 @@ def load_data_from_paths(data_dir: str) -> Optional[pd.DataFrame]:
     except Exception as e:
         st.error(f"Error loading data from disk: {e}")
         return None
+
 
 
 def build_data_from_uploads(
