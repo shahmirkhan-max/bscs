@@ -49,7 +49,7 @@ def load_excel_from_gdrive(file_id: str, engine: str = "openpyxl") -> pd.DataFra
 FILEIDS = {
     # CSV: 202425_rurality_and_idaci_of_region_provisional.csv
     "rurality_idaci": {
-        "id": "PUT_RURALITY_FILE_ID_HERE",
+        "id": "1lSNdDytkgLKvgTsuy0hfRwuhHt22BFVE",
         "type": "csv",
     },
     # CSV: 202425_geography_by_school_types_provisional.csv
