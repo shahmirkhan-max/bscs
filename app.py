@@ -69,7 +69,7 @@ FILEIDS = {
     },
     # CSV: Management_information_-_state-funded_schools_-_all_inspections_-_year_to_date_published_by_31_Dec_2024.csv
     "ofsted_mi": {
-        "id": "PUT_OFSTED_MI_FILE_ID_HERE",
+        "id": "1mKMIf_uF8zxqjK_JBBiQQvQ6zTB8IA7c",
         "type": "csv",
     },
 }
