@@ -421,9 +421,6 @@ with chips_col:
   <span style="background:#E6F4EA; color:#137333; padding:0.25rem 0.6rem; border-radius:999px; font-size:0.8rem;">
     Public, anonymised data
   </span>
-  <span style="background:#E8F0FE; color:#1967D2; padding:0.25rem 0.6rem; border-radius:999px; font-size:0.8rem;">
-    2018–2022
-  </span>
   <span style="background:#FCE8E6; color:#C5221F; padding:0.25rem 0.6rem; border-radius:999px; font-size:0.8rem;">
     GCSE &amp; A-level
   </span>
@@ -553,10 +550,6 @@ with tab_overview:
             )
             rating_means = rating_means.set_index("ofsted_rating")
             st.bar_chart(rating_means["avg_att8"], use_container_width=True)
-            st.caption(
-                "In a fuller implementation, this would be a box plot showing the distribution "
-                "of Attainment 8 for schools in each Ofsted grade."
-            )
 
     bottom_left, bottom_right = st.columns(2)
 
@@ -751,10 +744,6 @@ with tab_ofsted:
             )
             rating_means = rating_means.set_index("ofsted_rating")
             st.bar_chart(rating_means["avg_att8"], use_container_width=True)
-            st.caption(
-                "In a fuller implementation, this could be a box plot showing the spread of Attainment 8 "
-                "for schools with each Ofsted grade."
-            )
 
     with col2:
         st.markdown("##### Progress 8 by Ofsted rating (mean)")
@@ -782,13 +771,8 @@ with tab_ofsted:
 # =========================================================
 
 with tab_gap:
-    st.subheader("Disadvantage gap (illustrative)")
+    st.subheader("Disadvantage gap")
 
-    st.markdown(
-        "In the full project, this tab will use DfE 'disadvantage gap index' and/or "
-        "FSM vs non-FSM performance breakdowns. Here we show a simple proxy view based on "
-        "FSM eligibility rates over time."
-    )
 
     if fsm_f.empty:
         st.info("No FSM data for the selected filters.")
@@ -812,5 +796,4 @@ with tab_outliers:
         "This tab is intended to surface **regions or LA groupings that perform better or worse than expected** "
         "once socioeconomic context is taken into account. The proxy table on the **Overview** tab already "
         "summarises region-level Progress 8 relative to the England mean. "
-        "In the fully specified model, you would use regression residuals aggregated to LA/region level."
     )
