@@ -19,13 +19,20 @@ st.set_page_config(
 def load_csv_from_gdrive(file_id: str) -> pd.DataFrame:
     """
     Download a CSV directly from Google Drive using its file ID.
-    The file must be shared as 'Anyone with the link – Viewer'.
+    Tries UTF-8 first, then falls back to Latin-1 (common for DfE / Ofsted files).
     """
     url = f"https://drive.google.com/uc?export=download&id={file_id}"
     resp = requests.get(url)
     resp.raise_for_status()
-    data = resp.content.decode("utf-8")
-    return pd.read_csv(StringIO(data), low_memory=False)
+    content = resp.content
+
+    # Try UTF-8, fall back to Latin-1 / Windows-1252
+    try:
+        text = content.decode("utf-8")
+    except UnicodeDecodeError:
+        text = content.decode("latin1")
+
+    return pd.read_csv(StringIO(text), low_memory=False)
 
 
 def load_excel_from_gdrive(file_id: str, engine: str = "openpyxl") -> pd.DataFrame:
