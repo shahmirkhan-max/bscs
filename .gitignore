@@ -1,0 +1,29 @@
+# --- Python Basics ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Jupyter Notebooks ---
+.ipynb_checkpoints
+
+# --- Environments ---
+# Ignores your local virtual environment folder
+env/
+venv/
+.venv/
+base_env/
+
+# --- IDE Settings ---
+.vscode/
+.idea/
+
+# --- Operating System Files ---
+.DS_Store
+Thumbs.db
+
+# --- Optional: Data Files ---
+# If your internet is slow or you want to keep the repo small, 
+# uncomment the lines below to ignore the big CSVs.
+# However, if your friend needs this data to run the app, keep them commented out!
+# *.csv
+# *.xlsx
